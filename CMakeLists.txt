@@ -20,7 +20,8 @@ add_executable(tetris
                            game/game.c
                            game/game.h
                            tools/write_text_on_window/write_text_on_window.c
-                           tools/write_text_on_window/write_text_on_window.h)
+                           tools/write_text_on_window/write_text_on_window.h
+                           structures/structures.h)
 
 target_link_libraries(tetris ${SDL_IMAGE_LIBRARIES}
                                                         ${SDL_TTF_LIBRARIES}
