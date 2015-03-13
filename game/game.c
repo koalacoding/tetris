@@ -35,8 +35,8 @@ void start_game() {
     // Filling the window with white.
     SDL_FillRect(window, NULL, SDL_MapRGB(window->format, 255, 255, 255));
 
-    printf("grid_size x : %d\n", grid_size.x);
-    printf("grid_size y : %d\n", grid_size.y);
+    grid_data[1][1] = 1;
+    grid_data[2][1] = 1;
     browse_grid_and_draw(grid_data, grid_size, window, window_size);
 
     while (1) {
@@ -136,18 +136,45 @@ void free_grid_mallocs(int** grid_data, GridSize grid_size) {
 
 void draw_tetromino_square(SDL_Surface* window, SDL_Rect position_to_blit,
                            WindowSize window_size, GridSize grid_size) {
-    SDL_Surface* tetromino_square = NULL;
+    SDL_Surface *tetromino_square = NULL, *border_top = NULL, *border_below = NULL,
+                *border_right = NULL, *border_left = NULL;
+
     int tetromino_square_width, tetromino_square_height;
-    tetromino_square_width = window_size.width / grid_size.x;
-    tetromino_square_height = window_size.height / grid_size.y;
+    // -1 because we are going to add a 1px border.
+    tetromino_square_width = (window_size.width / grid_size.x) - 1;
+    tetromino_square_height = (window_size.height / grid_size.y) - 1;
     tetromino_square = SDL_CreateRGBSurface(SDL_HWSURFACE, tetromino_square_width,
                                             tetromino_square_height, 32, 0, 0, 0, 0);
-    SDL_FillRect(tetromino_square, NULL, SDL_MapRGB(tetromino_square->format, 0, 0, 0));
-
+    SDL_FillRect(tetromino_square, NULL, SDL_MapRGB(tetromino_square->format, 255, 0, 0));
     SDL_BlitSurface(tetromino_square, NULL, window, &position_to_blit);
+
+    draw_tetromino_square_borders(border_top, tetromino_square_width, 1, position_to_blit, 0, -1,
+                                  window);
+    draw_tetromino_square_borders(border_below, tetromino_square_width, 1, position_to_blit, 0,
+                                  tetromino_square_height, window);
+    draw_tetromino_square_borders(border_right, 1, tetromino_square_height, position_to_blit,
+                                  tetromino_square_width, 0, window);
+    draw_tetromino_square_borders(border_left, 1, tetromino_square_height, position_to_blit,
+                                  0, 0, window);
+
     SDL_Flip(window);
 
     SDL_FreeSurface(tetromino_square); // To avoid memory leak;
+}
+
+/*------------------------------
+-DRAW TETROMINO SQUARE BORDERS--
+------------------------------*/
+
+void draw_tetromino_square_borders(SDL_Surface* border, int border_width, int border_height,
+                                   SDL_Rect position_to_blit, int x_space, int y_space,
+                                   SDL_Surface* window) {
+    border = SDL_CreateRGBSurface(SDL_HWSURFACE, border_width, border_height, 32, 0, 0, 0, 0);
+    SDL_FillRect(border, NULL, SDL_MapRGB(border->format, 0, 0, 0));
+    position_to_blit.x += x_space;
+    position_to_blit.y += y_space;
+    SDL_BlitSurface(border, NULL, window, &position_to_blit);
+    SDL_FreeSurface(border);
 }
 
 /*------------------------------

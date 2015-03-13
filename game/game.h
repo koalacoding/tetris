@@ -61,6 +61,14 @@ void draw_tetromino_square(SDL_Surface* window, SDL_Rect position_to_blit,
                            WindowSize window_size, GridSize grid_size);
 
 /*------------------------------
+-DRAW TETROMINO SQUARE BORDERS--
+------------------------------*/
+
+void draw_tetromino_square_borders(SDL_Surface* border, int border_width, int border_height,
+                                   SDL_Rect position_to_blit, int x_space, int y_space,
+                                   SDL_Surface* window);
+
+/*------------------------------
 ---------FREE SDL SURFACES------
 ------------------------------*/
 
