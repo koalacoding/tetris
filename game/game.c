@@ -35,11 +35,16 @@ void start_game() {
     // Filling the window with white.
     SDL_FillRect(window, NULL, SDL_MapRGB(window->format, 255, 255, 255));
 
-    grid_data[1][1] = 1;
-    grid_data[2][1] = 1;
-    browse_grid_and_draw(grid_data, grid_size, window, window_size);
+    grid_data[4][0] = 1;
+    grid_data[4][1] = 1;
+    grid_data[4][2] = 1;
+    grid_data[4][3] = 1;
 
     while (1) {
+        make_tetromino_fall(grid_data, grid_size);
+        browse_grid_and_draw(grid_data, grid_size, window, window_size);
+        SDL_Delay(500);
+
         SDL_WaitEvent(&event);
         switch(event.type) {
             case SDL_QUIT:
@@ -99,13 +104,21 @@ void browse_grid_and_draw(int** grid_data, GridSize grid_size, SDL_Surface* wind
 
     for (y = 0; y < grid_size.y; y++) {
         for (x = 0; x < grid_size.x; x++) {
-            if (grid_data[x][y] == 1) {
+            if (grid_data[x][y] == 0) {
+                position_to_blit.x = x * (window_size.width / grid_size.x);
+                position_to_blit.y = y * (window_size.height / grid_size.y);
+                draw_blank_square(window, position_to_blit, window_size, grid_size);
+            }
+
+            if (grid_data[x][y] == 1) { // If the case is a tetromino square.
                 position_to_blit.x = x * (window_size.width / grid_size.x);
                 position_to_blit.y = y * (window_size.height / grid_size.y);
                 draw_tetromino_square(window, position_to_blit, window_size, grid_size);
             }
         }
     }
+
+    SDL_Flip(window);
 }
 
 /*------------------------------
@@ -157,8 +170,6 @@ void draw_tetromino_square(SDL_Surface* window, SDL_Rect position_to_blit,
     draw_tetromino_square_borders(border_left, 1, tetromino_square_height, position_to_blit,
                                   0, 0, window);
 
-    SDL_Flip(window);
-
     SDL_FreeSurface(tetromino_square); // To avoid memory leak;
 }
 
@@ -174,7 +185,26 @@ void draw_tetromino_square_borders(SDL_Surface* border, int border_width, int bo
     position_to_blit.x += x_space;
     position_to_blit.y += y_space;
     SDL_BlitSurface(border, NULL, window, &position_to_blit);
+
     SDL_FreeSurface(border);
+}
+
+/*------------------------------
+---------DRAW BLANK SQUARE------
+------------------------------*/
+
+void draw_blank_square(SDL_Surface* window, SDL_Rect position_to_blit,
+                           WindowSize window_size, GridSize grid_size) {
+    SDL_Surface* square = NULL;
+
+    int square_width, square_height;
+    square_width = window_size.width / grid_size.x;
+    square_height = window_size.height / grid_size.y;
+    square = SDL_CreateRGBSurface(SDL_HWSURFACE, square_width, square_height, 32, 0, 0, 0, 0);
+    SDL_FillRect(square, NULL, SDL_MapRGB(square->format, 255, 255, 255));
+    SDL_BlitSurface(square, NULL, window, &position_to_blit);
+
+    SDL_FreeSurface(square);
 }
 
 /*------------------------------
@@ -195,4 +225,31 @@ void free_sdl_surfaces(SDL_Surface* window) {
 
 int pick_random_form() {
     return (rand() % 7); // Pick a random number from 0 to 6 (there are 7 tetris forms).
+}
+
+
+/*----------------------------------------
+------------------------------------------
+------------MAKE TETROMINO FALL-----------
+------------------------------------------
+----------------------------------------*/
+
+
+void make_tetromino_fall(int** grid_data, GridSize grid_size) {
+    int y, x;
+
+    for (y = grid_size.y - 1; y >= 0; y--) {
+        if (y == 19) { // If we are at the last line of the grid.
+            continue; // We skip.
+        }
+
+        for (x = grid_size.x - 1; x >= 0; x--) {
+            if (grid_data[x][y] == 1) { // If there is a tetromino square in the case.
+                // We make the square go down of 1 case.
+                grid_data[x][y + 1] = 1;
+                grid_data[x][y] = 0;
+            }
+        }
+    }
+
 }

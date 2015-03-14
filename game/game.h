@@ -69,6 +69,13 @@ void draw_tetromino_square_borders(SDL_Surface* border, int border_width, int bo
                                    SDL_Surface* window);
 
 /*------------------------------
+---------DRAW BLANK SQUARE------
+------------------------------*/
+
+void draw_blank_square(SDL_Surface* window, SDL_Rect position_to_blit,
+                           WindowSize window_size, GridSize grid_size);
+
+/*------------------------------
 ---------FREE SDL SURFACES------
 ------------------------------*/
 
@@ -83,5 +90,15 @@ void free_sdl_surfaces(SDL_Surface* window);
 
 
 int pick_random_form();
+
+
+/*----------------------------------------
+------------------------------------------
+------------MAKE TETROMINO FALL-----------
+------------------------------------------
+----------------------------------------*/
+
+
+void make_tetromino_fall(int** grid_data, GridSize grid_size);
 
 #endif
