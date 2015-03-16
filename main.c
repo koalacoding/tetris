@@ -28,6 +28,7 @@ int main()
                 switch(event.key.keysym.sym) {
                     case SDLK_KP1:
                         start_game();
+                        draw_main_window(window);
                         break;
                 }
         }

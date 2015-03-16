@@ -23,7 +23,7 @@ void start_game();
 -------MAKE A NEW GRID DATA-----
 ------------------------------*/
 
-void initialize_grid_data(int*** grid_data, GridSize grid_size);
+void initialize_grid(int*** grid_data, GridSize grid_size);
 
 /*------------------------------
 ----FILL GRID DATA WITH ZEROS---
@@ -36,7 +36,7 @@ void fill_grid_with_zeros(int** grid_data, GridSize grid_size);
 ------------------------------*/
 
 // Browse the grid data and draw a square when there is a 1.
-void browse_grid_and_draw(int** grid_data, GridSize grid_size, SDL_Surface* window,
+void draw_grid(int** grid_data, GridSize grid_size, SDL_Surface* window,
                           WindowSize window_size);
 
 /*------------------------------
@@ -99,6 +99,6 @@ int pick_random_form();
 ----------------------------------------*/
 
 
-void make_tetromino_fall(int** grid_data, GridSize grid_size);
+void make_tetromino_fall(int* time_last, int** grid_data, GridSize grid_size);
 
 #endif
