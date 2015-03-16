@@ -99,6 +99,6 @@ int pick_random_form();
 ----------------------------------------*/
 
 
-void make_tetromino_fall(int* time_last, int** grid_data, GridSize grid_size);
+void make_tetromino_fall(int** grid_data, GridSize grid_size);
 
 #endif

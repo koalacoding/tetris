@@ -47,14 +47,14 @@ void start_game() {
     while (1) {
         time_actual = SDL_GetTicks();
 
-        if (time_actual - time_last > 1000) {
-            make_tetromino_fall(&time_last, grid_data, grid_size);
+        if (time_actual - time_last > 1000) { // If 1 second (1000ms) have passed.
+            make_tetromino_fall(grid_data, grid_size);
             draw_grid(grid_data, grid_size, window, window_size);
+
+            time_last = SDL_GetTicks(); // Refreshing the last time we made the tetrominoes fall.
         }
 
-        else {
-            SDL_Delay(30);
-        }
+        else { SDL_Delay(30); }
 
         SDL_PollEvent(&event);
         switch(event.type) {
@@ -253,27 +253,21 @@ int pick_random_form() {
 ----------------------------------------*/
 
 
-void make_tetromino_fall(int* time_last, int** grid_data, GridSize grid_size) {
-    int time_actual, y, x;
+void make_tetromino_fall(int** grid_data, GridSize grid_size) {
+    int y, x;
 
-    time_actual = SDL_GetTicks();
-    if (time_actual - *time_last > 1000) // If 1000ms have passed, we make the tetrominoes fall.
-    {
-        for (y = grid_size.y - 1; y >= 0; y--) {
-            if (y == grid_size.y - 1) { // If we are at the last line of the grid.
-                continue; // We skip.
-            }
-
-            for (x = grid_size.x - 1; x >= 0; x--) {
-                 // If there is a tetromino square in the case and if the case below is empty.
-                if (grid_data[x][y] == 1 && grid_data[x][y + 1] == 0) {
-                    // We make the square go down of 1 case.
-                    grid_data[x][y + 1] = 1;
-                    grid_data[x][y] = 0;
-                }
-            }
+    for (y = grid_size.y - 1; y >= 0; y--) {
+        if (y == grid_size.y - 1) { // If we are at the last line of the grid.
+            continue; // We skip.
         }
 
-        *time_last = SDL_GetTicks();
+        for (x = grid_size.x - 1; x >= 0; x--) {
+             // If there is a tetromino square in the case and if the case below is empty.
+            if (grid_data[x][y] == 1 && grid_data[x][y + 1] == 0) {
+                // We make the square go down of 1 case.
+                grid_data[x][y + 1] = 1;
+                grid_data[x][y] = 0;
+            }
+        }
     }
 }
