@@ -23,27 +23,26 @@ void start_game();
 -------MAKE A NEW GRID DATA-----
 ------------------------------*/
 
-void initialize_grid(int*** grid_data, GridSize grid_size);
+void initialize_grid(int*** grid_data, Grid grid);
 
 /*------------------------------
 ----FILL GRID DATA WITH ZEROS---
 ------------------------------*/
 
-void fill_grid_with_zeros(int** grid_data, GridSize grid_size);
+void fill_grid_with_zeros(Grid grid);
 
 /*------------------------------
 ------BROWSE GRID AND DRAW------
 ------------------------------*/
 
 // Browse the grid data and draw a square when there is a 1.
-void draw_grid(int** grid_data, GridSize grid_size, SDL_Surface* window,
-                          WindowSize window_size);
+void draw_grid(Grid grid, SDL_Surface* window, WindowSize window_size);
 
 /*------------------------------
 --------FREE GRID MALLOCS-------
 ------------------------------*/
 
-void free_grid_mallocs(int** grid_data, GridSize grid_size);
+void free_grid_mallocs(Grid grid);
 
 
 /*----------------------------------------
@@ -57,8 +56,8 @@ void free_grid_mallocs(int** grid_data, GridSize grid_size);
 -------DRAW TETROMINO SQUARE----
 ------------------------------*/
 
-void draw_tetromino_square(SDL_Surface* window, SDL_Rect position_to_blit,
-                           WindowSize window_size, GridSize grid_size);
+void draw_tetromino_square(SDL_Surface* window, SDL_Rect position_to_blit, WindowSize window_size,
+                           Grid grid);
 
 /*------------------------------
 -DRAW TETROMINO SQUARE BORDERS--
@@ -72,8 +71,8 @@ void draw_tetromino_square_borders(SDL_Surface* border, int border_width, int bo
 ---------DRAW BLANK SQUARE------
 ------------------------------*/
 
-void draw_blank_square(SDL_Surface* window, SDL_Rect position_to_blit,
-                           WindowSize window_size, GridSize grid_size);
+void draw_blank_square(SDL_Surface* window, SDL_Rect position_to_blit, WindowSize window_size,
+                       Grid grid);
 
 /*------------------------------
 ---------FREE SDL SURFACES------
@@ -94,11 +93,22 @@ int pick_random_form();
 
 /*----------------------------------------
 ------------------------------------------
-------------MAKE TETROMINO FALL-----------
+----------------TETROMINOES---------------
 ------------------------------------------
 ----------------------------------------*/
 
 
-void make_tetromino_fall(int** grid_data, GridSize grid_size);
+/*------------------------------
+------GENERATE NEW TETROMINO----
+------------------------------*/
+
+void generate_new_tetromino(int form, Grid grid);
+
+/*------------------------------
+-------MAKE TETROMINO FALL------
+------------------------------*/
+
+
+void make_tetromino_fall(Grid grid);
 
 #endif

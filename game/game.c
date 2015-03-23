@@ -15,8 +15,7 @@
 
 
 void start_game() {
-    int** grid_data; // Will be used as a 2D grid to store the position of the tetrominoes.
-    GridSize grid_size;
+    Grid grid;
 
     SDL_Surface *window = NULL;
     WindowSize window_size;
@@ -26,10 +25,10 @@ void start_game() {
 
     SDL_Event event;
 
-    grid_size.x = 10;
-    grid_size.y = 20;
-    initialize_grid(&grid_data, grid_size);
-    fill_grid_with_zeros(grid_data, grid_size);
+    grid.size_x = 10;
+    grid.size_y = 20;
+    initialize_grid(&grid.data, grid);
+    fill_grid_with_zeros(grid);
 
     window_size.width = window_size.height = 408;
     window = SDL_SetVideoMode(window_size.width, window_size.height, 32,
@@ -38,18 +37,18 @@ void start_game() {
     // Filling the window with white.
     SDL_FillRect(window, NULL, SDL_MapRGB(window->format, 255, 255, 255));
 
-    grid_data[4][0] = 1;
-    grid_data[4][1] = 1;
-    grid_data[4][2] = 1;
-    grid_data[4][3] = 1;
-    draw_grid(grid_data, grid_size, window, window_size);
+    grid.data[4][0] = 1;
+    grid.data[4][1] = 1;
+    grid.data[4][2] = 1;
+    grid.data[4][3] = 1;
+    draw_grid(grid, window, window_size);
 
     while (1) {
         time_actual = SDL_GetTicks();
 
-        if (time_actual - time_last > 1000) { // If 1 second (1000ms) have passed.
-            make_tetromino_fall(grid_data, grid_size);
-            draw_grid(grid_data, grid_size, window, window_size);
+        if (time_actual - time_last > 300) { // If 1 second (1000ms) have passed.
+            make_tetromino_fall(grid);
+            draw_grid(grid, window, window_size);
 
             time_last = SDL_GetTicks(); // Refreshing the last time we made the tetrominoes fall.
         }
@@ -59,7 +58,7 @@ void start_game() {
         SDL_PollEvent(&event);
         switch(event.type) {
             case SDL_QUIT:
-                free_grid_mallocs(grid_data, grid_size);
+                free_grid_mallocs(grid);
                 free_sdl_surfaces(window);
                 return;
             case SDL_KEYDOWN:
@@ -85,13 +84,12 @@ void start_game() {
 -------MAKE A NEW GRID DATA-----
 ------------------------------*/
 
-void initialize_grid(int*** grid_data, GridSize grid_size) {
+void initialize_grid(int*** grid_data, Grid grid) {
     int i;
+    *grid_data = (int**)malloc(grid.size_x * sizeof(int*)); // Allocates the first dimension.
 
-    *grid_data = (int**)malloc(grid_size.x * sizeof(int*)); // Allocates the first dimension.
-
-    for (i = 0; i < grid_size.x; i++) {
-        (*grid_data)[i] = (int*)malloc(grid_size.y * sizeof(int)); // Allocates the second dimension.
+    for (i = 0; i < grid.size_x; i++) {
+        (*grid_data)[i] = (int*)malloc(grid.size_y * sizeof(int)); // Allocates the second dimension.
     }
 }
 
@@ -99,12 +97,12 @@ void initialize_grid(int*** grid_data, GridSize grid_size) {
 ----FILL GRID DATA WITH ZEROS---
 ------------------------------*/
 
-void fill_grid_with_zeros(int** grid_data, GridSize grid_size) {
+void fill_grid_with_zeros(Grid grid) {
     int y, x;
 
-    for (y = 0; y < grid_size.y; y++) {
-        for (x = 0; x < grid_size.x; x++) {
-            grid_data[x][y] = 0;
+    for (y = 0; y < grid.size_y; y++) {
+        for (x = 0; x < grid.size_x; x++) {
+            grid.data[x][y] = 0;
         }
     }
 }
@@ -114,24 +112,23 @@ void fill_grid_with_zeros(int** grid_data, GridSize grid_size) {
 ------------------------------*/
 
 // Browse the grid data and draw a square when there is a 1.
-void draw_grid(int** grid_data, GridSize grid_size, SDL_Surface* window,
-                          WindowSize window_size) {
+void draw_grid(Grid grid, SDL_Surface* window, WindowSize window_size) {
     int y, x;
 
     SDL_Rect position_to_blit;
 
-    for (y = 0; y < grid_size.y; y++) {
-        for (x = 0; x < grid_size.x; x++) {
-            if (grid_data[x][y] == 0) {
-                position_to_blit.x = x * (window_size.width / grid_size.x);
-                position_to_blit.y = y * (window_size.height / grid_size.y);
-                draw_blank_square(window, position_to_blit, window_size, grid_size);
+    for (y = 0; y < grid.size_y; y++) {
+        for (x = 0; x < grid.size_x; x++) {
+            if (grid.data[x][y] == 0) {
+                position_to_blit.x = x * (window_size.width / grid.size_x);
+                position_to_blit.y = y * (window_size.height / grid.size_y);
+                draw_blank_square(window, position_to_blit, window_size, grid);
             }
 
-            if (grid_data[x][y] == 1) { // If the case is a tetromino square.
-                position_to_blit.x = x * (window_size.width / grid_size.x);
-                position_to_blit.y = y * (window_size.height / grid_size.y);
-                draw_tetromino_square(window, position_to_blit, window_size, grid_size);
+            if (grid.data[x][y] == 1) { // If the case is a tetromino square.
+                position_to_blit.x = x * (window_size.width / grid.size_x);
+                position_to_blit.y = y * (window_size.height / grid.size_y);
+                draw_tetromino_square(window, position_to_blit, window_size, grid);
             }
         }
     }
@@ -143,14 +140,14 @@ void draw_grid(int** grid_data, GridSize grid_size, SDL_Surface* window,
 --------FREE GRID MALLOCS-------
 ------------------------------*/
 
-void free_grid_mallocs(int** grid_data, GridSize grid_size) {
+void free_grid_mallocs(Grid grid) {
     int i;
 
-    for (i = 0; i < grid_size.x; i++) { // Freeing 2nd dimension.
-        free(grid_data[i]);
+    for (i = 0; i < grid.size_x; i++) { // Freeing 2nd dimension.
+        free(grid.data[i]);
     }
 
-    free(grid_data); // Freeing 1st dimension.
+    free(grid.data); // Freeing 1st dimension.
 }
 
 
@@ -165,15 +162,15 @@ void free_grid_mallocs(int** grid_data, GridSize grid_size) {
 -------DRAW TETROMINO SQUARE----
 ------------------------------*/
 
-void draw_tetromino_square(SDL_Surface* window, SDL_Rect position_to_blit,
-                           WindowSize window_size, GridSize grid_size) {
+void draw_tetromino_square(SDL_Surface* window, SDL_Rect position_to_blit, WindowSize window_size,
+                           Grid grid) {
     SDL_Surface *tetromino_square = NULL, *border_top = NULL, *border_below = NULL,
                 *border_right = NULL, *border_left = NULL;
 
     int tetromino_square_width, tetromino_square_height;
     // -1 because we are going to add a 1px border.
-    tetromino_square_width = (window_size.width / grid_size.x) - 1;
-    tetromino_square_height = (window_size.height / grid_size.y) - 1;
+    tetromino_square_width = (window_size.width / grid.size_x) - 1;
+    tetromino_square_height = (window_size.height / grid.size_y) - 1;
     tetromino_square = SDL_CreateRGBSurface(SDL_HWSURFACE, tetromino_square_width,
                                             tetromino_square_height, 32, 0, 0, 0, 0);
     SDL_FillRect(tetromino_square, NULL, SDL_MapRGB(tetromino_square->format, 255, 0, 0));
@@ -211,13 +208,13 @@ void draw_tetromino_square_borders(SDL_Surface* border, int border_width, int bo
 ---------DRAW BLANK SQUARE------
 ------------------------------*/
 
-void draw_blank_square(SDL_Surface* window, SDL_Rect position_to_blit,
-                           WindowSize window_size, GridSize grid_size) {
+void draw_blank_square(SDL_Surface* window, SDL_Rect position_to_blit, WindowSize window_size,
+                       Grid grid) {
     SDL_Surface* square = NULL;
 
     int square_width, square_height;
-    square_width = window_size.width / grid_size.x;
-    square_height = window_size.height / grid_size.y;
+    square_width = window_size.width / grid.size_x;
+    square_height = window_size.height / grid.size_y;
     square = SDL_CreateRGBSurface(SDL_HWSURFACE, square_width, square_height, 32, 0, 0, 0, 0);
     SDL_FillRect(square, NULL, SDL_MapRGB(square->format, 255, 255, 255));
     SDL_BlitSurface(square, NULL, window, &position_to_blit);
@@ -248,26 +245,49 @@ int pick_random_form() {
 
 /*----------------------------------------
 ------------------------------------------
-------------MAKE TETROMINO FALL-----------
+----------------TETROMINOES---------------
 ------------------------------------------
 ----------------------------------------*/
 
 
-void make_tetromino_fall(int** grid_data, GridSize grid_size) {
+/*------------------------------
+------GENERATE NEW TETROMINO----
+------------------------------*/
+
+void generate_new_tetromino(int form, Grid grid) {
+    switch (form) {
+     case 0: // ****
+        grid.data[0 + (grid.size_x / 3)][0] = 1;
+        grid.data[1 + (grid.size_x / 3)][0] = 1;
+        grid.data[2 + (grid.size_x / 3)][0] = 1;
+        grid.data[3 + (grid.size_x / 3)][0] = 1;
+        break;
+    }
+}
+
+/*------------------------------
+-------MAKE TETROMINO FALL------
+------------------------------*/
+
+
+void make_tetromino_fall(Grid grid) {
     int y, x;
 
-    for (y = grid_size.y - 1; y >= 0; y--) {
-        if (y == grid_size.y - 1) { // If we are at the last line of the grid.
-            continue; // We skip.
-        }
+    int something_has_moved = 0;
 
-        for (x = grid_size.x - 1; x >= 0; x--) {
+    for (y = grid.size_y - 2; y >= 0; y--) {
+        for (x = grid.size_x - 1; x >= 0; x--) {
              // If there is a tetromino square in the case and if the case below is empty.
-            if (grid_data[x][y] == 1 && grid_data[x][y + 1] == 0) {
+            if (grid.data[x][y] == 1 && grid.data[x][y + 1] == 0) {
                 // We make the square go down of 1 case.
-                grid_data[x][y + 1] = 1;
-                grid_data[x][y] = 0;
+                grid.data[x][y + 1] = 1;
+                grid.data[x][y] = 0;
+                something_has_moved = 1;
             }
         }
+    }
+
+    if (something_has_moved == 0) {
+        generate_new_tetromino(0, grid);
     }
 }
