@@ -37,11 +37,7 @@ void start_game() {
     // Filling the window with white.
     SDL_FillRect(window, NULL, SDL_MapRGB(window->format, 255, 255, 255));
 
-    grid.data[4][0] = 1;
-    grid.data[4][1] = 1;
-    grid.data[4][2] = 1;
-    grid.data[4][3] = 1;
-    draw_grid(grid, window, window_size);
+    generate_new_tetromino(rand() % 7, grid);
 
     while (1) {
         time_actual = SDL_GetTicks();
@@ -119,13 +115,14 @@ void draw_grid(Grid grid, SDL_Surface* window, WindowSize window_size) {
 
     for (y = 0; y < grid.size_y; y++) {
         for (x = 0; x < grid.size_x; x++) {
-            if (grid.data[x][y] == 0) {
+            if (grid.data[x][y] == 0) { // If the case if empty.
                 position_to_blit.x = x * (window_size.width / grid.size_x);
                 position_to_blit.y = y * (window_size.height / grid.size_y);
                 draw_blank_square(window, position_to_blit, window_size, grid);
             }
 
-            if (grid.data[x][y] == 1) { // If the case is a tetromino square.
+             // If the case is a tetromino square.
+            if (grid.data[x][y] == 1 || grid.data[x][y] == 2) {
                 position_to_blit.x = x * (window_size.width / grid.size_x);
                 position_to_blit.y = y * (window_size.height / grid.size_y);
                 draw_tetromino_square(window, position_to_blit, window_size, grid);
@@ -233,18 +230,6 @@ void free_sdl_surfaces(SDL_Surface* window) {
 
 /*----------------------------------------
 ------------------------------------------
-----------PICKING A RANDOM NUMBER---------
-------------------------------------------
-----------------------------------------*/
-
-
-int pick_random_form() {
-    return (rand() % 7); // Pick a random number from 0 to 6 (there are 7 tetris forms).
-}
-
-
-/*----------------------------------------
-------------------------------------------
 ----------------TETROMINOES---------------
 ------------------------------------------
 ----------------------------------------*/
@@ -256,13 +241,55 @@ int pick_random_form() {
 
 void generate_new_tetromino(int form, Grid grid) {
     switch (form) {
-     case 0: // ****
-        grid.data[0 + (grid.size_x / 3)][0] = 1;
-        grid.data[1 + (grid.size_x / 3)][0] = 1;
-        grid.data[2 + (grid.size_x / 3)][0] = 1;
-        grid.data[3 + (grid.size_x / 3)][0] = 1;
-        break;
-    }
+        case 0: // ****
+            grid.data[grid.size_x / 3][0] = 2;
+            grid.data[grid.size_x / 3 + 1][0] = 2;
+            grid.data[grid.size_x / 3 + 2][0] = 2;
+            grid.data[grid.size_x / 3 + 3][0] = 2;
+            break;
+        case 1: // *
+                // ***
+            grid.data[grid.size_x / 3][0] = 2;
+            grid.data[grid.size_x / 3][1] = 2;
+            grid.data[grid.size_x / 3 + 1][1] = 2;
+            grid.data[grid.size_x / 3 + 2][1] = 2;
+            break;
+        case 2: //   *
+                // ***
+            grid.data[grid.size_x / 3 + 2][0] = 2;
+            grid.data[grid.size_x / 3][1] = 2;
+            grid.data[grid.size_x / 3 + 1][1] = 2;
+            grid.data[grid.size_x / 3 + 2][1] = 2;
+            break;
+        case 3: // **
+                // **
+            grid.data[grid.size_x / 3][0] = 2;
+            grid.data[grid.size_x / 3 + 1][0] = 2;
+            grid.data[grid.size_x / 3][1] = 2;
+            grid.data[grid.size_x / 3 + 1][1] = 2;
+            break;
+        case 4: //  **
+                // **
+            grid.data[grid.size_x / 3 + 1][0] = 2;
+            grid.data[grid.size_x / 3 + 2][0] = 2;
+            grid.data[grid.size_x / 3][1] = 2;
+            grid.data[grid.size_x / 3 + 1][1] = 2;
+            break;
+        case 5: //  *
+                // ***
+            grid.data[grid.size_x / 3 + 1][0] = 2;
+            grid.data[grid.size_x / 3][1] = 2;
+            grid.data[grid.size_x / 3 + 1][1] = 2;
+            grid.data[grid.size_x / 3 + 2][1] = 2;
+            break;
+        case 6: // **
+                //  **
+            grid.data[grid.size_x / 3][0] = 2;
+            grid.data[grid.size_x / 3 + 1][0] = 2;
+            grid.data[grid.size_x / 3 + 1][1] = 2;
+            grid.data[grid.size_x / 3 + 2][1] = 2;
+            break;
+   }
 }
 
 /*------------------------------
@@ -271,23 +298,44 @@ void generate_new_tetromino(int form, Grid grid) {
 
 
 void make_tetromino_fall(Grid grid) {
+        //generate_new_tetromino(rand() % 2, grid);
     int y, x;
+    int z = 0;
 
-    int something_has_moved = 0;
-
+    // Analyzing the grid.
     for (y = grid.size_y - 2; y >= 0; y--) {
         for (x = grid.size_x - 1; x >= 0; x--) {
-             // If there is a tetromino square in the case and if the case below is empty.
-            if (grid.data[x][y] == 1 && grid.data[x][y + 1] == 0) {
-                // We make the square go down of 1 case.
-                grid.data[x][y + 1] = 1;
-                grid.data[x][y] = 0;
-                something_has_moved = 1;
+            /* If there is a tetromino square in the case
+            and if the case below is not a placed tetromino square. */
+            if (grid.data[x][y] == 2 && grid.data[x][y + 1] != 1) {
+                z++;
             }
         }
     }
 
-    if (something_has_moved == 0) {
-        generate_new_tetromino(0, grid);
+    if (z == 4) { // If the all the squares of the current tetromino can go down.
+        for (y = grid.size_y - 2; y >= 0; y--) {
+            for (x = grid.size_x - 1; x >= 0; x--) {
+                // We make the current tetromino squares go down.
+                if (grid.data[x][y] == 2) {
+                    grid.data[x][y + 1] = 2;
+                    grid.data[x][y] = 0;
+                }
+            }
+        }
+    }
+
+    else {
+        // We place the current tetromino to its final position.
+        for (y = grid.size_y - 1; y >= 0; y--) {
+            for (x = grid.size_x - 1; x >= 0; x--) {
+                // We make the current tetromino squares go down.
+                if (grid.data[x][y] == 2) {
+                    grid.data[x][y] = 1;
+                }
+            }
+        }
+
+        generate_new_tetromino(rand() % 7, grid);
     }
 }
