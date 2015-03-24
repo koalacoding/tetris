@@ -102,13 +102,13 @@ int pick_random_form();
 ------GENERATE NEW TETROMINO----
 ------------------------------*/
 
-void generate_new_tetromino(int form, Grid grid);
+void generate_new_tetromino(int form, int current_tetromino_pos[][2], Grid grid);
 
 /*------------------------------
 -------MAKE TETROMINO FALL------
 ------------------------------*/
 
 
-void make_tetromino_fall(Grid grid);
+void make_tetromino_fall(Grid grid, int current_tetromino_pos[][2]);
 
 #endif

@@ -20,6 +20,8 @@ void start_game() {
     SDL_Surface *window = NULL;
     WindowSize window_size;
 
+    int current_tetromino_pos[4][2];
+
     int time_actual;
     int time_last = SDL_GetTicks();
 
@@ -37,17 +39,23 @@ void start_game() {
     // Filling the window with white.
     SDL_FillRect(window, NULL, SDL_MapRGB(window->format, 255, 255, 255));
 
-    grid.data[4][0] = 1;
-    grid.data[4][1] = 1;
-    grid.data[4][2] = 1;
-    grid.data[4][3] = 1;
-    draw_grid(grid, window, window_size);
+    current_tetromino_pos[0][0] = 4;
+    current_tetromino_pos[0][1] = 0;
+
+    current_tetromino_pos[1][0] = 5;
+    current_tetromino_pos[1][1] = 0;
+
+    current_tetromino_pos[2][0] = 6;
+    current_tetromino_pos[2][1] = 0;
+
+    current_tetromino_pos[3][0] = 7;
+    current_tetromino_pos[3][1] = 0;
 
     while (1) {
         time_actual = SDL_GetTicks();
 
         if (time_actual - time_last > 300) { // If 1 second (1000ms) have passed.
-            make_tetromino_fall(grid);
+            make_tetromino_fall(grid, current_tetromino_pos);
             draw_grid(grid, window, window_size);
 
             time_last = SDL_GetTicks(); // Refreshing the last time we made the tetrominoes fall.
@@ -254,15 +262,37 @@ int pick_random_form() {
 ------GENERATE NEW TETROMINO----
 ------------------------------*/
 
-void generate_new_tetromino(int form, Grid grid) {
+void generate_new_tetromino(int form, int current_tetromino_pos[][2], Grid grid) {
     switch (form) {
      case 0: // ****
-        grid.data[0 + (grid.size_x / 3)][0] = 1;
-        grid.data[1 + (grid.size_x / 3)][0] = 1;
-        grid.data[2 + (grid.size_x / 3)][0] = 1;
-        grid.data[3 + (grid.size_x / 3)][0] = 1;
+        current_tetromino_pos[0][0] = grid.size_x / 3;
+        current_tetromino_pos[0][1] = 0;
+
+        current_tetromino_pos[1][0] = grid.size_x / 3 + 1;
+        current_tetromino_pos[1][1] = 0;
+
+        current_tetromino_pos[2][0] = grid.size_x / 3 + 2;
+        current_tetromino_pos[2][1] = 0;
+
+        current_tetromino_pos[3][0] = grid.size_x / 3 + 3;
+        current_tetromino_pos[3][1] = 0;
         break;
-    }
+
+    case 1: // *
+            // ***
+       current_tetromino_pos[0][0] = grid.size_x / 3;
+       current_tetromino_pos[0][1] = 0;
+
+       current_tetromino_pos[1][0] = grid.size_x / 3;
+       current_tetromino_pos[1][1] = 1;
+
+       current_tetromino_pos[2][0] = grid.size_x / 3 + 1;
+       current_tetromino_pos[2][1] = 1;
+
+       current_tetromino_pos[3][0] = grid.size_x / 3 + 2;
+       current_tetromino_pos[3][1] = 1;
+       break;
+   }
 }
 
 /*------------------------------
@@ -270,24 +300,37 @@ void generate_new_tetromino(int form, Grid grid) {
 ------------------------------*/
 
 
-void make_tetromino_fall(Grid grid) {
-    int y, x;
+void make_tetromino_fall(Grid grid, int current_tetromino_pos[][2]) {
+    int i;
+    int j = 0;
 
-    int something_has_moved = 0;
+    // If we are at the last line.
+    if (current_tetromino_pos[0][1] == grid.size_y - 1) {
+        generate_new_tetromino(0, current_tetromino_pos, grid);
+    }
 
-    for (y = grid.size_y - 2; y >= 0; y--) {
-        for (x = grid.size_x - 1; x >= 0; x--) {
-             // If there is a tetromino square in the case and if the case below is empty.
-            if (grid.data[x][y] == 1 && grid.data[x][y + 1] == 0) {
-                // We make the square go down of 1 case.
-                grid.data[x][y + 1] = 1;
-                grid.data[x][y] = 0;
-                something_has_moved = 1;
-            }
+    // Check if tetromino can go down.
+    for (i = 0; i < 4; i++) {
+        // If the case below if empty.
+        if (grid.data[current_tetromino_pos[i][0]][current_tetromino_pos[i][1] + 1] == 0) {
+            j++;
         }
     }
 
-    if (something_has_moved == 0) {
-        generate_new_tetromino(0, grid);
+    if (j == 4) { // If the 4 squares of the tetromino can go down, we make it go down.
+        // Destroying the old tetromino's position.
+        for (i = 0; i < 4; i++) {
+            grid.data[current_tetromino_pos[i][0]][current_tetromino_pos[i][1]] = 0;
+            current_tetromino_pos[i][1]++;
+        }
+
+        // Drawing the tetromino at its new position.
+        for (i = 0; i < 4; i++) {
+            grid.data[current_tetromino_pos[i][0]][current_tetromino_pos[i][1]] = 1;
+        }
+    }
+
+    else { // If the 4 squares of the tetromino cannot go down.
+        generate_new_tetromino(1, current_tetromino_pos, grid);
     }
 }
