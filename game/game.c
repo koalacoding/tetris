@@ -39,6 +39,8 @@ void start_game() {
 
     generate_new_tetromino(rand() % 7, grid);
 
+    SDL_EnableKeyRepeat(10000, 10000);
+
     while (1) {
         time_actual = SDL_GetTicks();
 
@@ -57,12 +59,12 @@ void start_game() {
                 free_grid_mallocs(grid);
                 free_sdl_surfaces(window);
                 return;
-            case SDL_KEYDOWN:
+            case SDL_KEYUP:
                 switch(event.key.keysym.sym) {
-                    case SDLK_DOWN:
-
-
+                    case SDLK_RIGHT:
+                        move_tetromino_right(grid);
                         break;
+
                 }
         }
     }
@@ -240,6 +242,15 @@ void free_sdl_surfaces(SDL_Surface* window) {
 ------------------------------*/
 
 void generate_new_tetromino(int form, Grid grid) {
+    int x;
+
+    // Checking if there is no placed tetromino square in the first line (i.e the game is over).
+    for (x = 0; x < grid.size_x - 1; x++) {
+        if (grid.data[x][0] == 1) {
+            return;
+        }
+    }
+
     switch (form) {
         case 0: // ****
             grid.data[grid.size_x / 3][0] = 2;
@@ -337,5 +348,36 @@ void make_tetromino_fall(Grid grid) {
         }
 
         generate_new_tetromino(rand() % 7, grid);
+    }
+}
+
+/*------------------------------
+-------MOVE TETROMINO RIGHT-----
+------------------------------*/
+
+void move_tetromino_right(Grid grid) {
+    int y, x;
+
+    int z = 0;
+
+    // Analyzing the grid to see if we can move the tetromino to the right.
+    for (y = grid.size_y - 2; y >= 0; y--) {
+        for (x = grid.size_x - 1; x >= 0; x--) {
+            if (grid.data[x][y] == 2 && grid.data[x + 1][y] != 1) {
+                z++;
+            }
+        }
+    }
+
+    if (z == 4) { // If all the tetromino's squares can move to the right.
+        // We move the tetromino to the right.
+        for (y = grid.size_y - 2; y >= 0; y--) {
+            for (x = grid.size_x - 1; x >= 0; x--) {
+                if (grid.data[x][y] == 2) {
+                    grid.data[x + 1][y] = 2;
+                    grid.data[x][y] = 0;
+                }
+            }
+        }
     }
 }
