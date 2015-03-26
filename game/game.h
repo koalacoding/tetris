@@ -106,4 +106,10 @@ void make_tetromino_fall(Grid grid);
 
 void move_tetromino_right(Grid grid);
 
+/*------------------------------
+-------MOVE TETROMINO LEFT------
+------------------------------*/
+
+void move_tetromino_left(Grid grid);
+
 #endif

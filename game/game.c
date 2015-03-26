@@ -79,7 +79,15 @@ void start_game() {
                             time_last2 = SDL_GetTicks();
                         }
 
-                    break;
+                        break;
+                    case SDLK_LEFT:
+                        if (can_move_tetromino == 1) {
+                            move_tetromino_left(grid);
+                            can_move_tetromino = 0;
+                            time_last2 = SDL_GetTicks();
+                        }
+
+                        break;
                 }
         }
     }
@@ -391,8 +399,37 @@ void move_tetromino_right(Grid grid) {
                 if (grid.data[x][y] == 2) {
                     grid.data[x + 1][y] = 2;
                     grid.data[x][y] = 0;
+                }
+            }
+        }
+    }
+}
 
-                    printf("*X* ");
+/*------------------------------
+-------MOVE TETROMINO LEFT------
+------------------------------*/
+
+void move_tetromino_left(Grid grid) {
+    int y, x;
+
+    int z = 0;
+
+    // Analyzing the grid to see if we can move the tetromino to the right.
+    for (y = grid.size_y - 2; y >= 0; y--) {
+        for (x = 1; x < grid.size_x; x++) {
+            if (grid.data[x][y] == 2 && grid.data[x - 1][y] != 1) {
+                z++;
+            }
+        }
+    }
+
+    if (z == 4) { // If all the tetromino's squares can move to the right.
+        // We move the tetromino to the right.
+        for (y = grid.size_y - 2; y >= 0; y--) {
+            for (x = 1; x < grid.size_x; x++) {
+                if (grid.data[x][y] == 2) {
+                    grid.data[x - 1][y] = 2;
+                    grid.data[x][y] = 0;
                 }
             }
         }
