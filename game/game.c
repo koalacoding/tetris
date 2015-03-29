@@ -435,3 +435,18 @@ void move_tetromino_left(Grid grid) {
         }
     }
 }
+
+/*------------------------------
+------CHANGE TETROMINO STATE----
+------------------------------*/
+
+void change_tetromino_state (int current_tetromino_form, int* current_tetromino_state) {
+    switch (current_tetromino_form) {
+        case 0: // ****
+            if (*current_tetromino_state == 0) { // ****
+
+            }
+
+            break;
+    }
+}
